@@ -19,11 +19,11 @@ $mail = new PHPMailer(true);
 try {
     $mail->isSMTP();
     $mail->SMTPAuth   = true;
-    $mail->Host       = "smtp.gmail.com";
+    $mail->Host       = "smtp-relay.brevo.com";
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
-    $mail->Username   = "cadebeno3322@gmail.com";
-    $mail->Password   = "rzvbnkihjuddwxgs";
+    $mail->Username   = "94ee92001@smtp-brevo.com";
+    $mail->Password   = "wTjtZbm1hQSxNqz9";
 
     $mail->setFrom("cadebeno3322@gmail.com", "Cade"); // Your Gmail
     $mail->addReplyTo($email, $name); // user’s email
@@ -38,3 +38,4 @@ try {
 } catch (Exception $e) {
     echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
 }
+
