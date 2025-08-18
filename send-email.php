@@ -1,41 +1,43 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name    = htmlspecialchars($_POST["name"]);
+    $email   = htmlspecialchars($_POST["email"]);
+    $message = htmlspecialchars($_POST["message"]);
 
-require "vendor/autoload.php";
+    $data = [
+        "sender" => [
+            "name" => "Portfolio Website",
+            "email" => "94ee92001@smtp-brevo.com" // Must be verified in Brevo
+        ],
+        "to" => [
+            [
+                "email" => "cadebeno3322@gmail.com",
+                "name" => "Cade"
+            ]
+        ],
+        "subject" => "New message from your portfolio site",
+        "htmlContent" => "<b>Name:</b> $name<br><b>Email:</b> $email<br><b>Message:</b><br>$message"
+    ];
 
-$name = trim($_POST["name"]);
-$email = trim($_POST["email"]);
-$subject = "New message from your portfolio site";
-$message = trim($_POST["message"]);
+    $ch = curl_init("https://api.brevo.com/v3/smtp/email");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "accept: application/json",
+        "api-key: wTjtZbm1hQSxNqz9", // Your Brevo API key
+        "content-type: application/json"
+    ]);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    die("Invalid email format.");
+    $response = curl_exec($ch);
+    $error    = curl_error($ch);
+    curl_close($ch);
+
+    if ($error) {
+        echo "Message could not be sent. Error: $error";
+    } else {
+        header("Location: sent.html");
+        exit;
+    }
 }
-
-$mail = new PHPMailer(true);
-
-try {
-    $mail->isSMTP();
-    $mail->SMTPAuth   = true;
-    $mail->Host       = "smtp-relay.brevo.com";
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = 587;
-    $mail->Username   = "94ee92001@smtp-brevo.com";
-    $mail->Password   = "wTjtZbm1hQSxNqz9";
-
-    $mail->setFrom("cadebeno3322@gmail.com", "Cade"); // Your Gmail
-    $mail->addReplyTo($email, $name); // user’s email
-    $mail->addAddress("cadebeno3322@gmail.com", "Cade");
-
-    $mail->Subject = $subject;
-    $mail->Body    = $message;
-
-    $mail->send();
-    header("Location: sent.html");
-    exit;
-} catch (Exception $e) {
-    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-}
-
+?>
